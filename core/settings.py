@@ -40,6 +40,7 @@ INSTALLED_APPS = [
 
     'apps.account',
     'apps.git_data',
+    'apps.subscriptions'
 ]
 
 MIDDLEWARE = [
