@@ -6,6 +6,7 @@ from rest_framework.views import APIView
 from .models import Subscription
 from ..git_data.models import GitHubProfile
 from .serializers import SubscriptionSerializer
+from ..git_data.serializers import GitHubProfileSerializer
 from ..git_data.utils import fetch_github_profile_data
 
 class SubscriptionListCreateView(generics.ListCreateAPIView):
@@ -40,9 +41,13 @@ class CronUpdateView(APIView):
     def get(self, request):
         subscriptions = Subscription.objects.select_related('profile').all()
 
-        updated = 0
+        updated_profiles = []
         for sub in subscriptions:
             fetch_github_profile_data(sub.profile)
-            updated += 1
+            updated_profiles.append(sub.profile)
 
-        return Response({"detail": f"{updated} GitHub profiles updated."})
+        serializer = GitHubProfileSerializer(updated_profiles, many=True)
+        return Response({
+            "detail": f"{len(updated_profiles)} GitHub профилей обновлено.",
+            "updated_profiles": serializer.data
+            }, status=status.HTTP_200_OK)
