@@ -15,25 +15,6 @@ class SubscriptionListCreateView(generics.ListCreateAPIView):
     def get_queryset(self):
         return Subscription.objects.filter(user=self.request.user)
 
-    def post(self, request, *args, **kwargs):
-        username = request.data.get('username')
-        if not username:
-            return Response({"detail": "Username is required"}, status=status.HTTP_400_BAD_REQUEST)
-
-        profile, _ = GitHubProfile.objects.get_or_create(username=username)
-        fetch_github_profile_data(profile)
-
-
-        subscription, created = Subscription.objects.get_or_create(
-            user=request.user,
-            profile=profile
-        )
-        if not created:
-            return Response({"detail": "Already subscribed"}, status=status.HTTP_400_BAD_REQUEST)
-
-        serializer = self.get_serializer(subscription)
-        return Response(serializer.data, status=status.HTTP_201_CREATED)
-
 
 
 class SubscriptionDeleteView(generics.DestroyAPIView):
