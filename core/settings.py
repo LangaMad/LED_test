@@ -40,8 +40,22 @@ INSTALLED_APPS = [
 
     'apps.account',
     'apps.git_data',
-    'apps.subscriptions'
+    'apps.subscriptions',
+    'rest_framework',
+    'rest_framework.authtoken',
+    'djoser'
 ]
+
+DJOSER = {
+    'LOGIN_FIELD': 'email',
+    'USER_CREATE_PASSWORD_RETYPE': True,
+    'SERIALIZERS': {
+        'user_create': 'apps.account.serializers.RegisterSerializer',
+        'user': 'apps.account.serializers.RegisterSerializer',
+        'current_user': 'apps.account.serializers.RegisterSerializer',
+    },
+}
+
 
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',

@@ -20,9 +20,9 @@ from django.urls import path, include
 urlpatterns = [
     path('admin/', admin.site.urls),
 
-    path('auth/', include('djoser.urls')),           # регистрация, текущий пользователь
-    path('auth/', include('djoser.urls.jwt')),       # JWT: login, refresh
+    path('auth/', include('djoser.urls')),
+    path('auth/', include('djoser.urls.jwt')),
 
-    path('subscriptions/', include('subscriptions.urls')),
-    path('git_data/', include('git_data.urls'))
+    path('subscriptions/', include('apps.subscriptions.urls')),
+    path('git_data/', include('apps.git_data.urls'))
 ]

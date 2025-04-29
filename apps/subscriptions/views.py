@@ -1,13 +1,12 @@
-from django.shortcuts import render
-
-# Create your views here.
 from rest_framework import generics, status
 from rest_framework.response import Response
 from rest_framework.permissions import IsAuthenticated
+from rest_framework.views import APIView
+
 from .models import Subscription
 from ..git_data.models import GitHubProfile
 from .serializers import SubscriptionSerializer
-# from git_data.utils import fetch_github_profile_data  # мы создадим эту функцию
+from ..git_data.utils import fetch_github_profile_data
 
 class SubscriptionListCreateView(generics.ListCreateAPIView):
     serializer_class = SubscriptionSerializer
@@ -22,9 +21,9 @@ class SubscriptionListCreateView(generics.ListCreateAPIView):
             return Response({"detail": "Username is required"}, status=status.HTTP_400_BAD_REQUEST)
 
         profile, _ = GitHubProfile.objects.get_or_create(username=username)
-        # fetch_github_profile_data(profile)  # наполняем данными
+        fetch_github_profile_data(profile)
 
-        # создать подписку
+
         subscription, created = Subscription.objects.get_or_create(
             user=request.user,
             profile=profile
@@ -51,3 +50,18 @@ class SubscriptionDeleteView(generics.DestroyAPIView):
             return Response({"detail": "Profile not found"}, status=status.HTTP_404_NOT_FOUND)
         except Subscription.DoesNotExist:
             return Response({"detail": "Not subscribed"}, status=status.HTTP_400_BAD_REQUEST)
+
+
+
+class CronUpdateView(APIView):
+    permission_classes = [IsAuthenticated]
+
+    def get(self, request):
+        subscriptions = Subscription.objects.select_related('profile').all()
+
+        updated = 0
+        for sub in subscriptions:
+            fetch_github_profile_data(sub.profile)
+            updated += 1
+
+        return Response({"detail": f"{updated} GitHub profiles updated."})
